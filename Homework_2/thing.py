@@ -1,6 +1,9 @@
 import numpy as np
+import pandas as pd
 
 NR_LABELS = 12
+LR_DECAY = 0.05
+LEARNING_RATE = 0.01
 
 def softmax(array):
     shifted = array - np.max(array)
@@ -36,7 +39,6 @@ def train_model(train_set, train_labels, W, b, learning_rate):
 
 
 if __name__ == "__main__":
-    # Here we have homework-1 instead of homework-2 due to an off-by-one error
     train = np.load("train.npz")
     test = np.load("test.npz")
 
@@ -50,18 +52,31 @@ if __name__ == "__main__":
     y_train = train["labels"]
     X_test = test["data"]
 
-
     X_tr = X_train / 255.0
     X_te = X_test / 255.0
 
-    for i in range(50):
-        train_model(X_tr, y_train, W, b, 0.01)
+    for epoch in range(50):
+        learning_rate = LEARNING_RATE / (1.0 + LR_DECAY * epoch)
+        train_model(X_tr, y_train, W, b, learning_rate)
 
 
-    # see how many it got correct on training data
+    # See how many it got correct on training data
     test_scores = np.dot(X_tr, np.transpose(W)) + b
     Y_test_prediction = np.argmax(test_scores, axis = 1)
 
 
     count_correct = int(np.sum(Y_test_prediction == y_train))
     print(count_correct)
+
+
+    # Submission
+    test_scores = np.dot(X_te, np.transpose(W)) + b
+    predictions = np.argmax(test_scores, axis = 1)
+
+    submission = pd.DataFrame({
+        "ID": range(len(predictions)),
+        "target": predictions,
+    })
+
+    submission.to_csv("submission.csv", index = False)
+    print("Created submission.csv")
