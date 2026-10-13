@@ -55,17 +55,21 @@ if __name__ == "__main__":
     X_tr = X_train / 255.0
     X_te = X_test / 255.0
 
+    # Split into training and validation data
+    X_training, X_validation = X_tr[:48000], X_tr[48000:]
+    Y_training, Y_validation = y_train[:48000], y_train[48000:]
+
     for epoch in range(50):
         learning_rate = LEARNING_RATE / (1.0 + LR_DECAY * epoch)
-        train_model(X_tr, y_train, W, b, learning_rate)
+        train_model(X_training, Y_training, W, b, learning_rate)
 
 
     # See how many it got correct on training data
-    test_scores = np.dot(X_tr, np.transpose(W)) + b
+    test_scores = np.dot(X_validation, np.transpose(W)) + b
     Y_test_prediction = np.argmax(test_scores, axis = 1)
 
 
-    count_correct = int(np.sum(Y_test_prediction == y_train))
+    count_correct = int(np.sum(Y_test_prediction == Y_validation))
     print(count_correct)
 
 
